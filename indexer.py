@@ -286,7 +286,7 @@ def make_video(src: Path, photo_id: str, engine=None) -> list:
     if not rot and codec == "h264" and src.suffix.lower() == ".mp4" and size_mbps <= 6:
         shutil.copyfile(src, dst)           # already small and plays everywhere
     else:
-        # Instagram-style: H.264 High, long edge <= 1920, CRF 23 with the slower
+        # Social-feed friendly: H.264 High, long edge <= 1920, CRF 23 with the slower
         # "medium" preset (~15% smaller than veryfast at the same quality), bitrate
         # capped at 6 Mbps for very busy scenes, AAC 128k, faststart for streaming.
         # On the Pi 5 this runs at roughly real time for 720p, ~2-3x for 1080p.

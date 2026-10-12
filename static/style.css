@@ -387,7 +387,7 @@ h1, h2, h3 { margin: 0; letter-spacing: -0.02em; }
 .home-copy h1 { font-size: clamp(28px, 8.2vw, 44px); }
 .home-copy h1 .grad { white-space: nowrap; background: var(--brand-grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
 
-/* ---------- viewer: caption + first comment (Instagram-style, under the reactions) ---------- */
+/* ---------- viewer: caption + first comment (under the reactions) ---------- */
 .viewer-bottom { gap: 10px; }
 .v-caption { color: #e9eaee; font-size: 14px; line-height: 1.4; text-align: left; margin-top: -4px;
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-wrap: break-word; }
@@ -645,7 +645,7 @@ h1, h2, h3 { margin: 0; letter-spacing: -0.02em; }
 .hour { position: relative; }
 #browse .hour-head { top: var(--browse-head, calc(160px + var(--safe-t))); }
 
-/* ======================= feed / explore / tabs (Instagram-style) ======================= */
+/* ======================= feed / explore / tabs ======================= */
 body.tabbed .fab-stack { bottom: calc(76px + var(--safe-b)); }   /* sits just above the bottom tab bar */
 body.tabbed .screen.active { padding-bottom: calc(76px + var(--safe-b)); }
 body.tabbed .toast { bottom: calc(84px + var(--safe-b)); }
@@ -666,7 +666,7 @@ body.tabbed .tabbar { display: flex; }
 .tabbar button.on .tab-av { box-shadow: 0 0 0 2px #fff; }
 
 /* top bar: share | logo | heart */
-.ig-bar .icon-btn svg { width: 26px; height: 26px; fill: none; stroke: #fff; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.top-bar .icon-btn svg { width: 26px; height: 26px; fill: none; stroke: #fff; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
 .heart-btn { position: relative; }
 .heart-btn .dot { position: absolute; top: 9px; right: 9px; width: 9px; height: 9px; border-radius: 50%; background: #ff3b5c;
   box-shadow: 0 0 0 2px var(--bg); }
@@ -926,9 +926,9 @@ body.tabbed #results.screen.active { padding-bottom: calc(76px + 140px + var(--s
 
 /* Explore + Feed: logo row tucks away while scrolling down */
 #browse .sticky-head, #feed .sticky-head { transition: transform .28s cubic-bezier(.2,.8,.2,1); will-change: transform; }
-#browse .sticky-head .ig-bar > *, #feed .sticky-head .ig-bar > * { transition: opacity .2s; }
+#browse .sticky-head .top-bar > *, #feed .sticky-head .top-bar > * { transition: opacity .2s; }
 body.bars-hidden #browse .sticky-head, body.bars-hidden #feed .sticky-head { transform: translateY(calc(-1 * var(--bar-hide, 0px))); }
-body.bars-hidden #browse .sticky-head .ig-bar > *, body.bars-hidden #feed .sticky-head .ig-bar > * { opacity: 0; pointer-events: none; }
+body.bars-hidden #browse .sticky-head .top-bar > *, body.bars-hidden #feed .sticky-head .top-bar > * { opacity: 0; pointer-events: none; }
 #browse .hour-head { transition: top .28s cubic-bezier(.2,.8,.2,1); }
 body.bars-hidden #browse .hour-head { top: calc(var(--browse-head, calc(160px + var(--safe-t))) - var(--bar-hide, 0px)); }
 
@@ -1248,7 +1248,7 @@ body.tabs-carousel #browseSeg button { color: color-mix(in srgb, #fff calc(min(1
 .top-cam { width: 26px; height: 26px; }
 .top-cam img { width: 26px; height: 26px; display: block; }
 .top-cam .cam-plus { right: -4px; bottom: -3px; width: 13px; height: 13px; }
-.ig-bar .icon-btn .top-cam .cam-plus { width: 13px; height: 13px; fill: #8b5cf6; stroke: #fff; stroke-width: 2.4; }
+.top-bar .icon-btn .top-cam .cam-plus { width: 13px; height: 13px; fill: #8b5cf6; stroke: #fff; stroke-width: 2.4; }
 .src-filter { right: 4px; width: 34px; height: 34px; }
 
 /* carousel: the selected tab differs only through --z (animated), never through instant size/weight changes */

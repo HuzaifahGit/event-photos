@@ -636,7 +636,7 @@ window.addEventListener("resize", measureHeads);
   const setHide = (h) => {
     if (h === hidden) return;
     hidden = h;
-    const bar = onPage() && onPage().querySelector(".sticky-head .ig-bar");
+    const bar = onPage() && onPage().querySelector(".sticky-head .top-bar");
     if (h && bar) {
       const safe = parseFloat(getComputedStyle(bar).paddingTop) - 6;   // keep the notch area covered
       root.style.setProperty("--bar-hide", `${Math.max(0, bar.offsetHeight - safe - 10)}px`);   // leave a little air above the tabs
@@ -2335,7 +2335,7 @@ async function photoFile(p) {
   return new File([blob], `event-photos-${p.id}.jpg`, { type: "image/jpeg" });
 }
 
-// Share one photo/video to WhatsApp, Instagram, etc. Safari only opens the share
+// Share one photo/video to WhatsApp and other apps Safari only opens the share
 // sheet straight from a tap, so the file is fetched ahead (prepShare) and the tap
 // itself never waits; if it isn't ready yet, the album link is shared instead.
 const shareFiles = new Map();
@@ -3071,7 +3071,7 @@ function paintMyAvatars() {
 }
 
 // ------------------------------------------------------------------ feed
-// Instagram-style home: one post per share (photos shared together are one
+// Feed home: one post per share (photos shared together are one
 // carousel), newest first. Each photo keeps its own caption, reactions and
 // comments, so the actions under a post follow the slide you're on.
 const FEED_PAGE = 8;
@@ -3180,7 +3180,7 @@ function makePost(post) {
   const media = document.createElement("div"); media.className = "post-media";
   const track = document.createElement("div"); track.className = "post-track";
   const first = post.photos[0];
-  const ratio = first.w && first.h ? Math.max(0.8, Math.min(1.91, first.w / first.h)) : 1;   // Instagram's 4:5 .. 1.91:1
+  const ratio = first.w && first.h ? Math.max(0.8, Math.min(1.91, first.w / first.h)) : 1;   // portrait 4:5 .. landscape 1.91:1
   media.style.aspectRatio = String(ratio);
   post.photos.forEach((p, i) => {
     const s = document.createElement("div"); s.className = "post-slide";
@@ -3266,7 +3266,7 @@ function makePost(post) {
   shareBtn.onclick = () => shareToApps(cur());
   shareBtn.addEventListener("pointerdown", () => prepShare(cur(), true));
   sharePrepIO.observe(act); act._cur = cur;
-  // tap = open full screen, double tap = ❤️ (like Instagram)
+  // tap = open full screen, double tap = ❤️ (like most photo feeds)
   let lastTap = 0, tapTimer;
   media.addEventListener("click", () => {
     const now = Date.now();
