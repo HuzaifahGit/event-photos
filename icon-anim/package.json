@@ -1,0 +1,2 @@
+{ "name": "event-icon-anim", "private": true,
+  "scripts": { "studio": "remotion studio src/index.ts" } }

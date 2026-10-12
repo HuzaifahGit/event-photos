@@ -1,0 +1,498 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b0a12">
+<title>Event · Find your photos, share your moments</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<!-- Hidden camera input: opens the phone's front camera directly -->
+<input id="selfieInput" type="file" accept="image/*" capture="user" hidden>
+<!-- Guest uploads: no capture attr, so phones offer Photo Library + Camera -->
+<input id="uploadInput" type="file" accept="image/*,video/*" multiple hidden>
+<!-- Rear camera for "Take a photo" -->
+<input id="uploadCamInput" type="file" accept="image/*" capture="environment" hidden>
+
+<!-- ============ HOME ============ -->
+<section id="home" class="screen active">
+  <div class="home-bg" aria-hidden="true"></div>
+  <div class="home-inner">
+    <div class="brand">
+      <span class="brand-mark">◆</span>
+      <span>Event</span>
+    </div>
+    <div class="home-copy">
+      <p class="welcome" id="welcomeLine" hidden></p>
+      <h1>Find your photos.<br><span class="grad">Share your moments.</span></h1>
+      <p class="lead">One selfie finds every photo you're in. Add your own shots to the album for everyone to enjoy.</p>
+    </div>
+    <div class="home-actions">
+      <button class="btn btn-primary btn-lg btn-grad" id="browseBtn">
+        <picture class="anim-ico"><source srcset="/static/brand/icons/browsetiles-still.png" media="(prefers-reduced-motion: reduce)"><img src="/static/brand/icons/browsetiles-v2.png" alt="" width="24" height="24"></picture>
+        Explore photos
+      </button>
+      <button class="btn btn-lg btn-dark" id="homeUploadBtn">
+        <picture class="anim-ico"><source srcset="/static/brand/icons/cameraflash-still.png" media="(prefers-reduced-motion: reduce)"><img src="/static/brand/icons/cameraflash-v2.png" alt="" width="24" height="24"></picture>
+        Share photos
+      </button>
+      <button id="findBtn" hidden></button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ LOADING ============ -->
+<section id="loading" class="screen">
+  <div class="center-stack">
+    <div class="scan-ring"><div class="scan-face"></div></div>
+    <h2 id="loadingTitle">Looking for you…</h2>
+    <p class="muted" id="loadingSub">Checking every photo from the event</p>
+  </div>
+</section>
+
+<!-- ============ RESULTS ============ -->
+<section id="results" class="screen">
+  <header class="topbar">
+    <button class="icon-btn" id="resultsBack" aria-label="Back">
+      <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="topbar-title">Your photos</div>
+    <button class="icon-btn" id="resultsMenu" aria-label="More">
+      <svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>
+    </button>
+  </header>
+
+  <div class="results-head">
+    <h2 id="resultsTitle"></h2>
+    <p class="muted" id="resultsSub"></p>
+  </div>
+
+  <div class="segmented" id="resultsSeg" role="tablist" aria-label="Filter photos"></div>
+
+  <div class="banner" id="liveBanner" hidden>
+    <span class="dot-live"></span>
+    <span>Photos are still coming in. Check back later.</span>
+    <button class="link" id="refreshBtn">Refresh</button>
+  </div>
+
+  <div id="resultsGroups"></div>
+
+  <div class="possible" id="possibleWrap" hidden>
+    <button class="btn btn-secondary btn-block" id="possibleBtn"></button>
+    <div id="possibleGrid" hidden></div>
+  </div>
+
+  <div class="empty" id="resultsEmpty" hidden>
+    <p>No photos of you yet.</p>
+    <p class="muted">The photographer may not have caught you yet. Check back later, or browse everyone's photos meanwhile.</p>
+  </div>
+
+  <div class="bottom-bar" hidden>
+    <button class="btn btn-secondary" id="resultsBrowseBtn">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>
+      Browse all photos
+    </button>
+    <button class="btn btn-primary" id="selectBtn">Select</button>
+  </div>
+  <div class="fab-stack">
+    <button class="fab fab-find" id="fabBrowseAll" aria-label="Browse all photos">
+      <picture class="anim-ico"><source srcset="/static/brand/icons/browsetiles-still.png" media="(prefers-reduced-motion: reduce)"><img src="/static/brand/icons/browsetiles-v2.png" alt="" width="22" height="22"></picture>
+      Browse all photos
+    </button>
+    <button class="fab fab-share" id="fabSelect" aria-label="Select photos to save">
+      <svg viewBox="0 0 24 24" aria-hidden="true" style="width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M8.5 12.2l2.4 2.4 4.6-5"/></svg>
+      Select
+    </button>
+  </div>
+</section>
+
+<!-- ============ FEED (latest posts from guests, Instagram style) ============ -->
+<section id="feed" class="screen">
+  <div class="sticky-head">
+    <header class="topbar ig-bar">
+      <button class="icon-btn" id="fdShare" aria-label="Share photos"><span class="cam-ico top-cam" aria-hidden="true"><img src="/static/brand/icons/cameraflash-still.png" alt="" width="24" height="24"><svg class="cam-plus" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><path d="M12 8.5v7M8.5 12h7"/></svg></span></button>
+      <div class="topbar-title"><div class="hero-logo mini" role="img" aria-label="Event">
+          <span class="hero-glow"></span>
+          <img class="hl-letters" src="/static/brand/logo-letters.png" alt="" width="888" height="221">
+          <img class="hl-ring" src="/static/brand/logo-ringc.png" alt="" width="888" height="221">
+          <span class="hl-comet"><span></span></span>
+          <span class="hero-shine"></span>
+          <span class="tw t1"></span><span class="tw t2"></span><span class="tw t3"></span>
+      </div></div>
+      <button class="icon-btn heart-btn" id="fdHeart" aria-label="Notifications"><svg viewBox="0 0 24 24"><path d="M12 20s-7.5-4.6-7.5-10.1A4.3 4.3 0 0 1 12 7.4a4.3 4.3 0 0 1 7.5 2.5C19.5 15.4 12 20 12 20z"/></svg><span class="dot" hidden></span></button>
+    </header>
+    <div class="search-row">
+    <div class="search" id="searchBox">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
+      <input id="searchInput" type="search" placeholder="Search a name…" autocomplete="off" spellcheck="false"
+             enterkeyhint="search" role="combobox" aria-controls="searchSuggest" aria-expanded="false">
+      <button class="search-clear" id="searchClear" type="button" aria-label="Clear search" hidden>×</button>
+      <div class="search-suggest" id="searchSuggest" role="listbox" hidden></div>
+    </div>
+    </div>
+  </div>
+  <div id="feedSearch" hidden>
+    <div class="search-head" id="searchHead"></div>
+    <div id="searchGroups"></div>
+    <h3 class="search-sub" id="searchPostsTitle" hidden>Posts</h3>
+    <div id="searchPosts"></div>
+  </div>
+  <button class="new-pill" id="feedPill" hidden></button>
+  <div id="feedList"></div>
+  <div class="empty" id="feedEmpty" hidden><p class="muted">No posts yet. Be the first to share a moment!</p></div>
+  <div class="fab-stack fab-mini">
+    <button class="fab fab-find" id="fabFindFeed" aria-label="Find my photos">
+      <span class="find-ico" aria-hidden="true"><picture class="anim-ico"><source srcset="/static/brand/icons/facescan-still.png" media="(prefers-reduced-motion: reduce)"><img src="/static/brand/icons/facescan-v2.png" alt="" width="22" height="22"></picture><svg class="find-lens" viewBox="0 0 24 24"><circle cx="10" cy="10" r="6.2"/><path d="M14.6 14.6l5.2 5.2"/></svg></span>
+      <span class="fab-label">Find my photos</span>
+    </button>
+    <button class="fab fab-share" id="fabUploadFeed" aria-label="Share photos">
+      <span class="cam-ico" aria-hidden="true"><picture class="anim-ico"><source srcset="/static/brand/icons/cameraflash-still.png" media="(prefers-reduced-motion: reduce)"><img src="/static/brand/icons/cameraflash-v2.png" alt="" width="22" height="22"></picture><svg class="cam-plus" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><path d="M12 8.5v7M8.5 12h7"/></svg></span>
+      <span class="fab-label">Share photos</span>
+    </button>
+  </div>
+  <div class="loader-row" id="feedMore" hidden><span class="spinner"></span></div>
+</section>
+
+<!-- ============ BROWSE ALL ============ -->
+<section id="browse" class="screen">
+  <div class="sticky-head">
+    <header class="topbar ig-bar">
+      <button class="icon-btn" id="exShare" aria-label="Share photos"><span class="cam-ico top-cam" aria-hidden="true"><img src="/static/brand/icons/cameraflash-still.png" alt="" width="24" height="24"><svg class="cam-plus" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><path d="M12 8.5v7M8.5 12h7"/></svg></span></button>
+      <div class="topbar-title"><div class="hero-logo mini" role="img" aria-label="Event">
+          <span class="hero-glow"></span>
+          <img class="hl-letters" src="/static/brand/logo-letters.png" alt="" width="888" height="221">
+          <img class="hl-ring" src="/static/brand/logo-ringc.png" alt="" width="888" height="221">
+          <span class="hl-comet"><span></span></span>
+          <span class="hero-shine"></span>
+          <span class="tw t1"></span><span class="tw t2"></span><span class="tw t3"></span>
+      </div></div>
+      <button class="icon-btn heart-btn" id="exHeart" aria-label="Notifications"><svg viewBox="0 0 24 24"><path d="M12 20s-7.5-4.6-7.5-10.1A4.3 4.3 0 0 1 12 7.4a4.3 4.3 0 0 1 7.5 2.5C19.5 15.4 12 20 12 20z"/></svg><span class="dot" hidden></span></button>
+    </header>
+    <div class="seg-row">
+      <div class="segmented" id="browseSeg" role="tablist" aria-label="Filter photos"></div>
+      <button class="src-filter" id="srcFilterBtn" type="button" aria-label="Show photos by" aria-haspopup="menu">
+        <svg viewBox="0 0 24 24"><path d="M4 6h16M7 12h10M10 18h4"/></svg><span class="src-dot" hidden></span>
+      </button>
+      <div class="src-menu" id="srcMenu" role="menu" hidden>
+        <button type="button" data-src="all" role="menuitemradio">All photos</button>
+        <button type="button" data-src="camera" role="menuitemradio">Photographer</button>
+        <button type="button" data-src="guest" role="menuitemradio">Guests</button>
+      </div>
+    </div>
+  </div>
+  <button class="new-pill" id="newPill" hidden></button>
+  <div id="browseGroups"></div>
+  <div class="empty" id="browseEmpty" hidden></div>
+  <div class="fab-stack fab-mini">
+    <button class="fab fab-find" id="fabFind" aria-label="Find my photos">
+      <span class="find-ico" aria-hidden="true"><picture class="anim-ico"><source srcset="/static/brand/icons/facescan-still.png" media="(prefers-reduced-motion: reduce)"><img src="/static/brand/icons/facescan-v2.png" alt="" width="22" height="22"></picture><svg class="find-lens" viewBox="0 0 24 24"><circle cx="10" cy="10" r="6.2"/><path d="M14.6 14.6l5.2 5.2"/></svg></span>
+      <span class="fab-label">Find my photos</span>
+    </button>
+    <button class="fab fab-share" id="fabUpload" aria-label="Share photos">
+      <span class="cam-ico" aria-hidden="true"><picture class="anim-ico"><source srcset="/static/brand/icons/cameraflash-still.png" media="(prefers-reduced-motion: reduce)"><img src="/static/brand/icons/cameraflash-v2.png" alt="" width="22" height="22"></picture><svg class="cam-plus" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><path d="M12 8.5v7M8.5 12h7"/></svg></span>
+      <span class="fab-label">Share photos</span>
+    </button>
+  </div>
+  <div class="loader-row" id="browseMore" hidden><span class="spinner"></span></div>
+</section>
+
+<!-- ============ SELFIE CAMERA (in-page, front camera, face guide) ============ -->
+<div id="cam" class="cam" hidden>
+  <video id="camVideo" playsinline muted autoplay></video>
+  <div class="cam-oval" id="camOval" aria-hidden="true">
+    <div class="cam-scan"></div>
+    <svg viewBox="0 0 100 133.3" preserveAspectRatio="none">
+      <ellipse class="ov-track" cx="50" cy="66.65" rx="48.5" ry="65.15" pathLength="100"/>
+      <path class="ov-prog" id="camProg" d="M50,1.5 A48.5,65.15 0 1,1 49.99,1.5" pathLength="100"/>
+    </svg>
+  </div>
+  <div class="cam-top">
+    <button class="icon-btn light" id="camClose" aria-label="Close camera"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <span id="camTitle">Take a selfie</span>
+    <span class="icon-btn-spacer"></span>
+  </div>
+  <p class="cam-hint" id="camHint">Fit your face inside the oval · good light · no sunglasses</p>
+  <div class="cam-bottom">
+    <button class="cam-alt" id="camPick" type="button">Use a photo instead</button>
+    <button class="cam-shutter" id="camShutter" aria-label="Take selfie"><span></span></button>
+    <span class="cam-alt-spacer"></span>
+  </div>
+</div>
+
+<!-- ============ SHARE CAMERA (tap = photo, hold = boomerang) ============ -->
+<div id="scam" class="scam" hidden>
+  <video id="scamVideo" playsinline muted autoplay></video>
+  <div class="scam-top">
+    <button class="icon-btn light" id="scamClose" aria-label="Close camera"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <span class="scam-rec">● Boomerang</span>
+    <button class="icon-btn light" id="scamFlip" aria-label="Switch camera"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><path d="M9.5 12.5a2.6 2.6 0 0 1 4.6-1.6M14.5 13.5a2.6 2.6 0 0 1-4.6 1.6"/><path d="M14.4 9.6v1.6h-1.6M9.6 16.4v-1.6h1.6"/></svg></button>
+  </div>
+  <p class="scam-hint" id="scamHint">Tap for photo · hold for boomerang</p>
+  <div class="scam-bottom">
+    <button class="scam-side" id="scamGallery" type="button" aria-label="Choose from gallery">
+      <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><circle cx="9" cy="10" r="1.5"/><path d="M20 16l-5-5-8 9"/></svg>
+    </button>
+    <button class="scam-shutter" id="scamShutter" aria-label="Tap for photo, hold for boomerang">
+      <svg viewBox="0 0 80 80"><circle class="scam-track" cx="40" cy="40" r="36"/><circle class="scam-ring" id="scamRing" cx="40" cy="40" r="36" pathLength="100"/></svg>
+      <span></span>
+    </button>
+    <span class="scam-side-spacer"></span>
+  </div>
+</div>
+
+<!-- ============ VIEWER ============ -->
+<div id="viewer" class="viewer" hidden>
+  <div class="viewer-top">
+    <button class="icon-btn light" id="viewerClose" aria-label="Close">
+      <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <span id="viewerCount"></span>
+    <span class="icon-btn-spacer"></span>
+  </div>
+  <div class="viewer-stage" id="viewerStage">
+    <div class="viewer-track" id="viewerTrack"></div>
+  </div>
+  <button class="viewer-nav prev" id="viewerPrev" type="button" aria-label="Previous photo"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+  <button class="viewer-nav next" id="viewerNext" type="button" aria-label="Next photo"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+  <div class="viewer-bottom">
+    <div class="post-dots viewer-dots" id="viewerDots" hidden></div>
+    <div class="viewer-credit" id="viewerCredit"></div>
+    <div class="v-caption" id="vCaption" hidden></div>
+    <div class="react-row">
+      <div class="react-bar" id="reactBar"></div>
+      <button class="react-btn comment-btn" id="commentBtn" aria-label="Comments">💬 <span id="commentCount"></span></button>
+    </div>
+    <div class="react-who" id="reactWho"></div>
+    <button class="v-comment" id="vComment" type="button"></button>
+    <div class="feedback" id="viewerFeedback">
+      <span class="muted">Is this you?</span>
+      <button class="chip" data-verdict="me">Yes</button>
+      <button class="chip" data-verdict="not_me">No</button>
+    </div>
+    <div class="save-row">
+    <button class="btn btn-primary btn-block" id="saveBtn">
+      <svg viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>
+      Save photo
+    </button>
+    <button class="btn btn-secondary share-ico" id="shareBtn" type="button" aria-label="Share">
+      <svg viewBox="0 0 24 24"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M6 12v7h12v-7"/></svg>
+    </button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ CONSENT SHEET ============ -->
+<div class="sheet-backdrop" id="consentSheet" hidden>
+  <div class="sheet" role="dialog" aria-labelledby="consentTitle">
+    <div class="sheet-handle"></div>
+    <h3 id="consentTitle">Before your selfie</h3>
+    <ul class="consent-list">
+      <li>We use your selfie only to find you in this event's photos.</li>
+      <li>Your selfie photo is never saved. Matching runs on our own computer.</li>
+      <li>Your face is linked to your name, so friends can find photos of you by searching your name.</li>
+      <li>All face data is deleted after the event.</li>
+    </ul>
+    <div class="tips">
+      <div class="tip"><span>☀︎</span>Good light</div>
+      <div class="tip"><span>◉</span>Face the camera</div>
+      <div class="tip"><span>⌀</span>No sunglasses</div>
+    </div>
+    <button class="btn btn-primary btn-block btn-lg" id="agreeBtn">Agree &amp; take selfie</button>
+    <button class="btn btn-ghost btn-block" id="consentCancel">Not now</button>
+  </div>
+</div>
+
+<!-- ============ UPLOAD SHEET ============ -->
+<div class="sheet-backdrop" id="uploadSheet" hidden>
+  <div class="sheet" role="dialog" aria-labelledby="uploadTitle">
+    <div class="sheet-handle"></div>
+    <h3 id="uploadTitle">Share your moments</h3>
+    <p class="sheet-text" id="upIntro">Add the photos you took to the album. They appear under Guests with your name, and you can add a caption to each one.</p>
+    <p class="share-as" id="upAs"></p>
+    <div class="as-choice" id="upAsChoice" hidden role="radiogroup" aria-label="Post as"></div>
+    <label class="field" id="upNameField" hidden>
+      <span>Your name <em>(optional, shown as "Shared by")</em></span>
+      <input id="upName" maxlength="40" autocomplete="given-name" placeholder="e.g. Alex">
+    </label>
+    <div class="upload-progress" id="upProgress" hidden>
+      <div class="bar"><span id="upBar"></span></div>
+      <p id="upStatus"></p>
+    </div>
+    <p class="up-note" id="upNote" role="alert" hidden></p>
+    <div class="compose" id="upCompose" hidden>
+      <div class="compose-strip" id="upStrip"></div>
+      <p class="compose-hint" id="upHint"></p>
+      <button class="btn btn-primary btn-block btn-lg" id="upPost" type="button">Share</button>
+      <button class="btn btn-ghost btn-block" id="upBack" type="button">Choose different photos</button>
+    </div>
+    <div class="up-actions" id="upActions">
+      <button class="btn btn-primary btn-lg" id="upCamera" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
+        Camera
+      </button>
+      <button class="btn btn-secondary btn-lg" id="upChoose" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><circle cx="9" cy="10" r="1.5"/><path d="M20 16l-5-5-8 9"/></svg>
+        From gallery
+      </button>
+    </div>
+    <button class="btn btn-ghost btn-block" id="upCancel">Close</button>
+  </div>
+</div>
+
+<!-- ============ CAPTION SHEET (edit the caption of your own photo) ============ -->
+<div class="sheet-backdrop" id="captionSheet" hidden>
+  <form class="sheet" id="captionForm" role="dialog" aria-labelledby="captionTitle" autocomplete="off">
+    <div class="sheet-handle"></div>
+    <h3 id="captionTitle">Caption</h3>
+    <label class="field">
+      <textarea id="captionInput" class="cap-input" maxlength="150" rows="3" placeholder="Say something about this moment…"></textarea>
+    </label>
+    <button class="btn btn-primary btn-block btn-lg" type="submit">Save caption</button>
+    <button class="btn btn-ghost btn-block" type="button" id="captionCancel">Cancel</button>
+  </form>
+</div>
+
+<!-- ============ NAME SHEET (first visit after the QR code) ============ -->
+<div class="sheet-backdrop" id="reactSheet" hidden>
+  <div class="sheet react-sheet" role="dialog" aria-labelledby="reactTitle">
+    <div class="sheet-handle"></div>
+    <h3 id="reactTitle">Reactions</h3>
+    <div id="reactList" class="react-list"></div>
+  </div>
+</div>
+<div class="sheet-backdrop" id="saveAsk" hidden>
+  <div class="sheet save-ask" role="dialog" aria-labelledby="saveAskTitle">
+    <div class="sheet-handle"></div>
+    <img id="saveAskImg" alt="">
+    <h3 id="saveAskTitle">Save this photo?</h3>
+    <p class="sheet-text">It goes to your phone's gallery (or Downloads on a computer).</p>
+    <button class="btn btn-primary btn-block btn-grad" id="saveAskGo" type="button">Save photo</button>
+    <button class="btn btn-secondary btn-block" id="saveAskNo" type="button">Cancel</button>
+  </div>
+</div>
+<div class="sheet-backdrop" id="nameSheet" hidden>
+  <form class="sheet" id="nameForm" role="dialog" aria-labelledby="nameTitle" autocomplete="off">
+    <div class="sheet-handle"></div>
+    <h3 id="nameTitle">Welcome to Event 👋</h3>
+    <p class="sheet-text">Type your name. We use it to keep your photos together.</p>
+    <label class="field picker">
+      <span>Full name</span>
+      <input id="fullNameInput" maxlength="80" placeholder="Start typing your name…" enterkeyhint="next"
+             role="combobox" aria-autocomplete="list" aria-controls="namePicker" aria-expanded="false" autocapitalize="words" spellcheck="false">
+      <span class="picked" id="namePicked" hidden>✓</span>
+      <div class="name-picker" id="namePicker" role="listbox" hidden></div>
+    </label>
+    <p class="name-help" id="nameHelp"></p>
+    <label class="field">
+      <span>Nickname <em>(optional, shown on your posts, comments and reactions)</em></span>
+      <input id="nameInput" maxlength="30" autocomplete="nickname" placeholder="e.g. Alex" enterkeyhint="done">
+    </label>
+    <button class="btn btn-primary btn-block btn-lg" id="nameSave" type="submit" disabled>Continue</button>
+    <button class="btn btn-secondary btn-block" id="nameAnon" type="button">Just browse as a guest</button>
+    <p class="anon-note" id="nameAnonNote">No name needed to look around. We'll ask for it only if you post or comment.</p>
+  </form>
+</div>
+
+<!-- ============ COMMENTS SHEET ============ -->
+<div class="sheet-backdrop" id="commentSheet" hidden>
+  <div class="sheet comments-sheet" role="dialog" aria-labelledby="commentsTitle">
+    <div class="sheet-handle"></div>
+    <h3 id="commentsTitle">Comments</h3>
+    <div class="comment-list" id="commentList"></div>
+    <form class="comment-form" id="commentForm" autocomplete="off">
+      <input id="commentInput" maxlength="200" placeholder="Add a comment…" enterkeyhint="send">
+      <button class="btn btn-primary" id="commentSend" type="submit">Post</button>
+    </form>
+    <p class="small-note" id="commentAs"></p>
+  </div>
+</div>
+
+<!-- ============ PROFILE (mine, the photographer's, or another guest's) ============ -->
+<section id="profile" class="screen">
+  <div class="sticky-head">
+    <header class="topbar ig-bar">
+      <button class="icon-btn" id="pfBack" aria-label="Back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <div class="topbar-title"><b class="pf-title" id="pfTitle"></b></div>
+      <span class="icon-btn" aria-hidden="true"></span>
+    </header>
+  </div>
+  <div class="profile-head">
+    <span class="av big" id="pfAv"></span>
+    <h2 id="pfName"></h2>
+    <p class="muted prof-full" id="pfFull"></p>
+    <div class="prof-stats" id="pfStats"></div>
+  </div>
+  <h3 class="search-sub" id="profPostsTitle">Posts</h3>
+  <div id="profPosts"></div>
+  <div class="empty" id="profEmpty" hidden><p class="muted">No posts yet.</p></div>
+</section>
+
+<!-- ============ PROFILE SHEET (profile tab) ============ -->
+<div class="sheet-backdrop" id="profileSheet" hidden>
+  <div class="sheet profile-sheet" role="dialog" aria-labelledby="profName">
+    <div class="sheet-handle"></div>
+    <button class="prof-av" id="profAvBtn" type="button" aria-label="Change profile picture">
+      <span class="av me-av big" id="profAv"></span><span class="prof-plus">+</span>
+    </button>
+    <h3 id="profName"></h3>
+    <p class="muted prof-full" id="profFull"></p>
+    <div class="prof-stats" id="profStats"></div>
+    <button class="btn btn-primary btn-lg btn-block grad-btn" id="profFind" type="button">
+      <picture class="anim-ico"><source srcset="/static/brand/icons/facescan-still.png" media="(prefers-reduced-motion: reduce)"><img src="/static/brand/icons/facescan-v2.png" alt="" width="24" height="24"></picture>
+      Show pictures of me
+    </button>
+    <button class="btn btn-secondary btn-block" id="profMyPosts" type="button">Show my posts</button>
+    <button class="btn btn-ghost btn-block" id="profRemove" type="button" hidden>Remove picture</button>
+    <button class="btn btn-ghost btn-block" id="profName2" type="button">Change nickname</button>
+    <input id="avatarInput" type="file" accept="image/*" hidden>
+  </div>
+</div>
+
+<!-- ============ BOTTOM TABS ============ -->
+<nav class="tabbar" id="tabbar" aria-label="Main">
+  <button data-tab="browse" aria-label="Explore"><svg viewBox="0 0 24 24"><path d="M4 10.5L12 4l8 6.5V20h-5v-6h-6v6H4z"/></svg></button>
+  <button data-tab="feed" aria-label="Feed"><svg viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M7 8.5h10M7 12h10M7 15.5h6"/></svg></button>
+  <button data-tab="profile" aria-label="Your profile"><span class="av me-av tab-av"></span></button>
+</nav>
+
+<!-- ============ NOTIFICATIONS ============ -->
+<div class="sheet-backdrop" id="notifSheet" hidden>
+  <div class="sheet notif-sheet" role="dialog" aria-labelledby="notifTitle">
+    <div class="sheet-handle"></div>
+    <h3 id="notifTitle">Activity</h3>
+    <div class="notif-list" id="notifList"></div>
+  </div>
+</div>
+
+
+<!-- ============ MENU SHEET ============ -->
+<div class="sheet-backdrop" id="menuSheet" hidden>
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <button class="sheet-item" id="menuBrowse">Browse all photos</button>
+    <button class="sheet-item" id="menuAngle">Add another selfie angle</button>
+    <button class="sheet-item" id="menuRetake">Start again with a new selfie</button>
+    <button class="sheet-item danger" id="menuForget">Forget my face on this phone</button>
+    <button class="btn btn-ghost btn-block" id="menuCancel">Close</button>
+  </div>
+</div>
+
+<!-- ============ SELECT BAR ============ -->
+<div class="select-bar" id="selectBar" hidden>
+  <button class="btn btn-ghost" id="selectCancel">Cancel</button>
+  <span id="selectCount">0 selected</span>
+  <button class="btn btn-primary" id="selectSave">Save</button>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script src="/static/vendor/pica.min.js"></script>
+<script src="/static/config.js"></script>
+<script src="/static/app.js"></script>
+</body>
+</html>

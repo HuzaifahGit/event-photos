@@ -1,0 +1,15 @@
+cloud.env
+.env*
+!.env.example
+.venv/
+data/
+inbox/
+logs/
+dist/
+*.log
+__pycache__/
+.wrangler
+.dev.vars*
+run/
+node_modules/
+icon-anim/out/

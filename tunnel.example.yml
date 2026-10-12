@@ -1,0 +1,7 @@
+# Cloudflare Tunnel config for the photo API (cloudflared tunnel create ...)
+tunnel: YOUR_TUNNEL_ID
+credentials-file: /home/YOU/.cloudflared/YOUR_TUNNEL_ID.json
+ingress:
+  - hostname: api.example.com
+    service: http://localhost:8000
+  - service: http_status:404

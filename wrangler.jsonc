@@ -1,0 +1,11 @@
+{
+  // Guest page: static files in dist/ + a small Worker that talks to R2 and D1 (worker/index.js).
+  "name": "event-photos",
+  "main": "worker/index.js",
+  "compatibility_date": "2026-10-01",
+  "assets": { "directory": "dist", "binding": "ASSETS", "run_worker_first": true },
+  "r2_buckets": [{ "binding": "PHOTOS", "bucket_name": "YOUR_R2_BUCKET" }],
+  "d1_databases": [{ "binding": "SOCIAL", "database_name": "event-social", "database_id": "YOUR_D1_DATABASE_ID" }],
+  "routes": [{ "pattern": "photos.example.com", "custom_domain": true }],
+  "workers_dev": false
+}
